@@ -1,0 +1,2 @@
+web: nodemon app.js
+queue: nodemon queue.js

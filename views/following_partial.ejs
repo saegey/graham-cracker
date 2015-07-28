@@ -1,0 +1,25 @@
+<% for(var i=0; i < results.data.length; i++) {%>
+  <tr>
+    <td width="100">
+      <img src="<%= results.data[i].profile_picture %>" class="img-rounded" height="75">
+    <td>
+      <a href="/users/<%= results.data[i].username %>?page=1">
+      `<%= results.data[i].username %>
+      </a></br>
+      <%= results.data[i].full_name %></br>
+    </td>
+    <td>
+      <textarea data-id="<%= results.data[i].id %>"
+                data-user-id="<%= results.data[i].id %>"
+                rows="4"
+                cols="50"><%= results.data[i].topics %></textarea>
+    </td>
+    <td>
+      <input id="<%= results.data[i].id %>"
+             data-id="<%= results.data[i].id %>"
+             class="btn btn-default"
+             type="submit"
+             value="Save">
+    </td>
+  </tr>
+<% } %>

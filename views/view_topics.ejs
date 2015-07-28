@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Super Awesome</title>
+
+  <!-- CSS (load bootstrap from a CDN) -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+  <style>
+    body { padding-top:10px; padding-bottom: 50px; }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $("input[type='submit']").click(function () {
+        var type = $(this).data("type");
+        var name = $(this).data("name");
+        var id = $(this).data("id");
+
+        if (type === 'user') {
+          console.log('delete user from topic');
+          $.ajax({
+            type: "PUT",
+            url: "/v1/photos/topic/" + name + "/remove",
+            data: JSON.stringify({"user_id": id}),
+            success: function(data) {
+              $("#user-" + id).hide();
+            },
+            contentType: "application/json",
+            dataType: 'json'
+          });
+        } else {
+
+          console.log(name, id);
+
+          $.ajax({
+            type: "DELETE",
+            url: "/v1/photos/topic/" + name,
+            data: JSON.stringify({}),
+            success: function(data) {
+              $("#" + id).hide();
+            },
+            contentType: "application/json",
+            dataType: 'json'
+          });
+        }
+      });
+    });
+  </script>
+
+</head>
+<body class="container">
+
+  <main>
+    <div class="panel panel-default">
+      <!-- Default panel contents -->
+      <div class="panel-heading">
+        <% include ../views/partials/nav %>
+      </div>
+
+      <!-- List group -->
+      <ul class="list-group">
+        <span class="pull-right" style="margin-right:10px;"><a href="/topics/<%= name %>/feed?page=1">Feed</a></span>
+        <h4 style="margin-left: 10px;"><%= results.name %></h4>
+        <table class="table">
+        <% for(var j=0; j < results.users.length; j++) {%>
+          <tr id="user-<%= results.users[j].id %>">
+            <td width="100">
+              <img src="<%= results.users[j].profile_picture %>" class="img-rounded" height="75">
+            <td>
+              <input data-id="<%= results.users[j].id %>"
+                     data-name="<%= results.name %>"
+                     data-type="user"
+                     class="btn btn-default pull-right"
+                     type="submit" value="Delete">
+              <a href="/users/<%= results.users[j].username %>?page=1">
+                <%= results.users[j].username %>
+              </a>
+              </br>
+              <%= results.users[j].full_name %></br>
+              <%= results.users[j].description %></br>
+            </td>
+          </tr>
+        <% } %>
+      </table>
+
+      </ul>
+    </div>
+  </main>
+
+  <footer>
+  </footer>
+
+</body>
+</html>

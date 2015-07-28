@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Super Awesome</title>
+
+  <!-- CSS (load bootstrap from a CDN) -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+  <style>
+    body { padding-top:10px; padding-bottom: 50px; }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $( "#search" ).keyup(function( event ) {
+        var search = $(this).val();
+        console.log(search);
+        $.ajax({
+          type: "GET",
+          url: "/following/partial?q=" + search,
+          success: function(data) {
+            $('table > tbody').html(data)
+          },
+          contentType: "application/html",
+          dataType: 'html'
+        });
+      });
+      $( "body" ).on("click", ".btn", function() {
+        // var data = [];
+        var topics = [];
+        var id = $(this).data("id");
+        var lookup = "textarea[data-id='" + id +"']"
+        console.log(lookup);
+        var textArea = $(lookup);
+        var userId = textArea.data("user-id");
+        var tempTopics = textArea.val().split(",");
+        tempTopics.forEach(function (t) {
+          topics.push($.trim(t));
+        });
+        console.log(textArea.val(), userId);
+
+        $.ajax({
+          type: "POST",
+          url: "/v1/photos/users/" + userId,
+          data: JSON.stringify({"topics": topics}),
+          success: function(data) {
+            console.log(data);
+          },
+          contentType: "application/json",
+          dataType: 'json'
+        });
+      });
+      $('textarea').on('change',function(){
+        var value = $(this).val()
+        if (value.length > 0) {
+          $(".btn[id=" + $(this).data("id") + "]").prop('disabled', false)
+        }
+      });
+    });
+  </script>
+
+</head>
+<body class="container">
+
+  <main>
+    <div class="panel panel-default">
+      <!-- Default panel contents -->
+      <div class="panel-heading">
+        <!-- views/partials/nav.ejs -->
+        <% include ../views/partials/nav %>
+        <div class="input-group" style="margin-top: 10px;">
+          <input type="text" class="form-control" placeholder="Search for..." id="search">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button">Go!</button>
+          </span>
+        </div><!-- /input-group -->
+      </div>
+      <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th></th>
+        <th>User</th>
+        <th>Tags</th>
+        <th>Save?</th>
+      </tr>
+    </thead>
+    <tbody>
+    <% for(var i=0; i < results.data.length; i++) {%>
+      <tr>
+        <td width="100">
+          <a href="http://instagram.com/<%= results.data[i].username %>">
+            <img src="<%= results.data[i].profile_picture %>" class="img-rounded" height="75">
+          </a>
+        <td>
+          <a href="/users/<%= results.data[i].username %>"><%= results.data[i].username %></a></br>
+          <%= results.data[i].full_name %></br>
+        </td>
+        <td>
+          <textarea data-id="<%= results.data[i].id %>"
+                    data-user-id="<%= results.data[i].id %>"
+                    rows="4"
+                    cols="50"><%= results.data[i].topics %></textarea>
+        </td>
+        <td>
+          <input id="<%= results.data[i].id %>" data-id="<%= results.data[i].id %>" class="btn btn-default" type="submit" value="Save">
+        </td>
+      </tr>
+      <% } %>
+      </tbody>
+    </table>
+    </div>
+    <% if (results.has_more) { %>
+    <nav>
+      <ul class="pager">
+        <% if (page != 1) { %>
+        <li><a href="/following?page=<%= page -1 %>">Previous</a></li>
+        <% } %>
+        <li><a href="/following?page=<%= page + 1 %>">Next</a></li>
+      </ul>
+    </nav>
+    <% } %>
+  </main>
+
+  <footer>
+  </footer>
+
+</body>
+</html>
